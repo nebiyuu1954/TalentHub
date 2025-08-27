@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-rgy1tmws%+*ad$q(4hl2r3f(92!n^)d&65iczf38s3t!yy@l#*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    
+    'talenthub-f7ef.onrender.com',  
+    'localhost',                    
+    '127.0.0.1', 
+]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
