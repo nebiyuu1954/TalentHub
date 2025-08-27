@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
@@ -42,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     "rest_framework.authtoken",
+    'corsheaders',
+    
 ]
 
 MIDDLEWARE = [
@@ -52,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'talenthub_backend.urls'
@@ -139,7 +143,8 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',  
+        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
         ), 
     
     'DEFAULT_FILTER_BACKENDS': [
@@ -149,7 +154,7 @@ REST_FRAMEWORK = {
     ],
     
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-     'PAGE_SIZE': 2,
+    'PAGE_SIZE': 2,
      
     'DEFAULT_THROTTLE_RATES':{
         'anon': '10/minute',
@@ -160,5 +165,11 @@ REST_FRAMEWORK = {
 
 
 DJOSER = {
-    "USER_TO_FIELD" : "username"
+    "USER_TO_FIELD": "username",
+    "USER_CREATE_PASSWORD_RETYPE": False,
+    "SERIALIZERS": {
+        "user_create": "talenthub_API.serializers.UserCreateSerializer",
+        "user": "talenthub_API.serializers.UserSerializer",
+        "current_user": "talenthub_API.serializers.UserSerializer",
+    }
 }

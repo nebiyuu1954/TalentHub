@@ -107,10 +107,9 @@ class SingleUserView(APIView):
 
 
 
-
 class JobView(APIView):
     permission_classes = [IsAuthenticated]
-    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    # throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
     def get(self, request):
         if request.user.is_superuser or request.user.role in ['employer', 'applicant']:
@@ -118,24 +117,17 @@ class JobView(APIView):
 
             # simple filtering
             title = request.query_params.get('title')
-            location = request.query_params.get('location')
-            job_type = request.query_params.get('job_type')
-
             if title:
                 jobs = jobs.filter(title__icontains=title)
-            if location:
-                jobs = jobs.filter(location__icontains=location)
-            if job_type:
-                jobs = jobs.filter(job_type__iexact=job_type)
 
             # simple sorting
             sort_by = request.query_params.get('sort', 'id')
-            if sort_by in ['id', 'title', 'location', 'salary', 'created_at']:
+            if sort_by in ['id', 'title', 'salary', 'created_at']:
                 jobs = jobs.order_by(sort_by)
 
             # Pagination
-            perpage = request.query_params.get('perpage', default=10)
-            page = request.query_params.get('page', default=1)
+            perpage = int(request.query_params.get('perpage', 6))
+            page = int(request.query_params.get('page', 1))
 
             paginator = Paginator(jobs, per_page=perpage)
             try:
@@ -143,7 +135,7 @@ class JobView(APIView):
             except EmptyPage:
                 jobs = []
 
-            serializer = JobSerializer(jobs, many=True)
+            serializer = JobSerializer(jobs, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
@@ -152,7 +144,7 @@ class JobView(APIView):
         if request.user.role != 'employer' and not request.user.is_superuser:
             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = JobSerializer(data=request.data)
+        serializer = JobSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -161,12 +153,12 @@ class JobView(APIView):
 
 class SingleJobView(APIView):
     permission_classes = [IsAuthenticated]
-    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    # throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
     def get(self, request, pk):
         if request.user.is_superuser or request.user.role in ['employer', 'applicant']:
             job = get_object_or_404(Job, pk=pk)
-            serializer = JobSerializer(job)
+            serializer = JobSerializer(job, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
 
@@ -175,7 +167,7 @@ class SingleJobView(APIView):
         if request.user != job.created_by and not request.user.is_superuser:
             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = JobSerializer(job, data=request.data)
+        serializer = JobSerializer(job, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(created_by=job.created_by)  # keep original creator
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -186,7 +178,7 @@ class SingleJobView(APIView):
         if request.user != job.created_by and not request.user.is_superuser:
             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = JobSerializer(job, data=request.data, partial=True)
+        serializer = JobSerializer(job, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save(created_by=job.created_by)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -199,9 +191,6 @@ class SingleJobView(APIView):
 
         job.delete()
         return Response({"detail": "Job successfully deleted"}, status=status.HTTP_200_OK)
-
-
-
 
 
 class ApplicationView(APIView):
@@ -220,9 +209,13 @@ class ApplicationView(APIView):
         else:
             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
 
+        status_param = request.query_params.get('status')
+        if status_param:
+            applications = applications.filter(status=status_param.lower())
+
         # simple pagination
-        perpage = request.query_params.get('perpage', 10)
-        page = request.query_params.get('page', 1)
+        perpage = int(request.query_params.get('perpage', 6))
+        page = int(request.query_params.get('page', 1))
         paginator = Paginator(applications.order_by('-applied_at'), per_page=perpage)
 
         try:
@@ -230,7 +223,7 @@ class ApplicationView(APIView):
         except EmptyPage:
             applications = []
 
-        serializer = ApplicationSerializer(applications, many=True)
+        serializer = ApplicationSerializer(applications, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -249,7 +242,11 @@ class ApplicationView(APIView):
         if Application.objects.filter(job=job, user=user).exists():
             return Response({"detail": "You have already applied to this job"}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ApplicationSerializer(data=request.data)
+        data = request.data.copy()
+        if 'resume' in request.FILES:
+            data['resume'] = request.FILES['resume']
+
+        serializer = ApplicationSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=user, job=job, status='applied')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -267,7 +264,7 @@ class SingleApplicationView(APIView):
         if user.is_superuser or \
            (role == 'applicant' and application.user == user) or \
            (role == 'employer' and application.job.created_by == user):
-            serializer = ApplicationSerializer(application)
+            serializer = ApplicationSerializer(application, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
@@ -288,7 +285,7 @@ class SingleApplicationView(APIView):
 
         application.status = new_status
         application.save()
-        serializer = ApplicationSerializer(application)
+        serializer = ApplicationSerializer(application, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
