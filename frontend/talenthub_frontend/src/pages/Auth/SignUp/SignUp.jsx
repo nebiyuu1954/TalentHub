@@ -37,6 +37,7 @@ return (
         <select name="role" onChange={handleChange}>
           <option value="applicant">Applicant</option>
           <option value="employer">Employer</option>
+          <option value="employer">Admin</option>
         </select>
         <button type="submit">Sign Up</button>
       </form>
