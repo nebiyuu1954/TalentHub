@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './ApplicantLandingPage.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
-const AUTH_BASE = import.meta.env.VITE_AUTH_BASE_URL || 'http://127.0.0.1:8000/auth';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://talenthub-f7ef.onrender.com/api';
+const AUTH_BASE = import.meta.env.VITE_AUTH_BASE_URL || 'https://talenthub-f7ef.onrender.com/auth';
 
 export default function ApplicantDashboard() {
   const [jobs, setJobs] = useState([]);
