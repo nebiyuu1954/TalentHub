@@ -1,0 +1,43 @@
+/* src/theme.css */
+
+/* ===== Light Theme ===== */
+:root {
+  --color-primary: #1E40AF;   /* Blue */
+  --color-secondary: #10B981; /* Green */
+  --color-bg: #ffffff;
+  --color-text: #000000;
+
+  --transition-speed: 0.3s;
+}
+
+/* ===== Dark Theme ===== */
+.dark {
+  --color-primary: #93C5FD;   /* Lighter blue for contrast */
+  --color-secondary: #6EE7B7; /* Softer green for dark background */
+  --color-bg: #121212;
+  --color-text: #ffffff;
+}
+
+/* ===== Base Styles ===== */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: sans-serif;
+  transition: background-color var(--transition-speed),
+              color var(--transition-speed);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+button {
+  background-color: var(--color-secondary);
+  color: var(--color-text);
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition-speed),
+              color var(--transition-speed);
+}
