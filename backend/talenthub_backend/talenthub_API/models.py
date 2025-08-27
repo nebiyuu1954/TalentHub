@@ -20,6 +20,9 @@ class User(AbstractUser):
 class Job(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
+    requirements = models.TextField(blank=True) 
+    salary = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True) 
+    salary_confidential = models.BooleanField(default=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -29,6 +32,7 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
 
 
 class Application(models.Model):
@@ -41,6 +45,7 @@ class Application(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='applications')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='applied')
     applied_at = models.DateTimeField(auto_now_add=True)
+    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} → {self.job.title} ({self.status})"
