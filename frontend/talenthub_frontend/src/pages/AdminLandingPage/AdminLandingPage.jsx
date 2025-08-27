@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './AdminLandingPage.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://talenthub-f7ef.onrender.com/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://talenthub-f7ef.onrender.com';
 
 export default function AdminLandingPage() {
   const token = localStorage.getItem('authToken');
