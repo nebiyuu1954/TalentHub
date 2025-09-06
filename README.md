@@ -65,7 +65,7 @@ DELETE /api/applications/${id}/
 Clone the project:
 
 ```bash
-git clone <your-repository-link>
+git clone <https://github.com/nebiyuu1954/TalentHub.git>
 cd TalentHub
 ```
 
