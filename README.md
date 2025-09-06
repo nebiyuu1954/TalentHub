@@ -2,6 +2,11 @@
 
 TalentHub is a full-stack web application designed to streamline the recruitment process by connecting job applicants, employers, and administrators.
 
+## Live Demo
+
+You can view a live demo of the application here:
+[https://mytalenthub.vercel.app/](https://mytalenthub.vercel.app/)
+
 ## Tech Stack
 
 **Client:** React, React Router, Axios, Vite
