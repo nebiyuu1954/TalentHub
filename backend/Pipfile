@@ -12,6 +12,7 @@ django-filter = "*"
 dj-database-url = "*"
 whitenoise = "*"
 gunicorn = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
