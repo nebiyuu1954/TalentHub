@@ -9,6 +9,8 @@ djangorestframework = "*"
 djoser = "*"
 psycopg2-binary = "*"
 django-filter = "*"
+dj-database-url = "*"
+whitenoise = "*"
 
 [dev-packages]
 
